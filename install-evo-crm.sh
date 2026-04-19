@@ -601,6 +601,11 @@ services:
       - ${NETWORK_NAME}
     environment:
       - "ALLOWED_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - "AUTH_UPSTREAM=evo_auth:3001"
+      - "CRM_UPSTREAM=evo_crm:3000"
+      - "CORE_UPSTREAM=evo_core:5555"
+      - "PROCESSOR_UPSTREAM=evo_processor:8000"
+      - "BOT_RUNTIME_UPSTREAM=evo_bot_runtime:8080"
     deploy:
       mode: replicated
       replicas: 1
@@ -619,6 +624,7 @@ services:
         - traefik.http.routers.evo_gateway.service=evo_gateway
         - traefik.http.services.evo_gateway.loadbalancer.server.port=3030
         - traefik.http.services.evo_gateway.loadbalancer.passHostHeader=true
+        - traefik.http.routers.evo_gateway.priority=1
 
 ## --------------------------- ORION --------------------------- ##
 
@@ -766,6 +772,9 @@ services:
       - "ENABLE_ACCOUNT_SIGNUP=true"
       - "ENABLE_PUSH_RELAY_SERVER=true"
       - "ENABLE_INBOX_EVENTS=true"
+      - "MFA_ISSUER=EvoCRM"
+      - "SIDEKIQ_CONCURRENCY=10"
+      - "ACTIVE_STORAGE_SERVICE=local"
       - "BOT_RUNTIME_URL=http://evo_bot_runtime:8080"
       - "BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}"
       - "BOT_RUNTIME_POSTBACK_BASE_URL=http://evo_crm:3000"
