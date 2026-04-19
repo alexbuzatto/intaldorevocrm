@@ -622,39 +622,39 @@ services:
 
   evo_auth:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Service (Rails) — porta 3001
-    command: bash -c "until (echo > /dev/tcp/${POSTGRES_HOST}/${POSTGRES_PORT}) >/dev/null 2>&1; do echo 'Aguardando Banco...'; sleep 2; done; bundle exec rails db:migrate 2>&1 || echo 'Migration errors...'; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3001 -b 0.0.0.0"
+    command: bash -c "bundle exec rails db:migrate 2>&1 || echo 'Migration errors...'; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3001 -b 0.0.0.0"
     networks:
       - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV="production"
-      - RAILS_MAX_THREADS="5"
-      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
-      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
-      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
-      - POSTGRES_HOST="${POSTGRES_HOST}"
-      - POSTGRES_PORT="${POSTGRES_PORT}"
-      - POSTGRES_USERNAME="${POSTGRES_USER}"
-      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
-      - POSTGRES_SSLMODE="disable"
-      - REDIS_URL="${REDIS_URL}"
-      - FRONTEND_URL="https://${FRONTEND_DOMAIN}"
-      - BACKEND_URL="https://${API_DOMAIN}"
-      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
-      - MAILER_SENDER_EMAIL="${MAILER_SENDER_EMAIL}"
-      - SMTP_ADDRESS="${SMTP_ADDRESS}"
-      - SMTP_PORT="${SMTP_PORT}"
-      - SMTP_DOMAIN="${SMTP_DOMAIN}"
-      - SMTP_AUTHENTICATION="${SMTP_AUTHENTICATION}"
-      - SMTP_ENABLE_STARTTLS_AUTO="${SMTP_ENABLE_STARTTLS_AUTO}"
-      - SMTP_USERNAME="${SMTP_USERNAME}"
-      - SMTP_PASSWORD="${SMTP_PASSWORD}"
-      - DOORKEEPER_JWT_SECRET_KEY="${DOORKEEPER_JWT_SECRET_KEY}"
-      - DOORKEEPER_JWT_ALGORITHM="hs256"
-      - DOORKEEPER_JWT_ISS="evo-auth-service"
-      - MFA_ISSUER="EvoCRM"
-      - SIDEKIQ_CONCURRENCY="10"
-      - ACTIVE_STORAGE_SERVICE="local"
+      - RAILS_ENV=production
+      - RAILS_MAX_THREADS=5
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USERNAME=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_SSLMODE=disable
+      - REDIS_URL=${REDIS_URL}
+      - FRONTEND_URL=https://${FRONTEND_DOMAIN}
+      - BACKEND_URL=https://${API_DOMAIN}
+      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
+      - MAILER_SENDER_EMAIL=${MAILER_SENDER_EMAIL}
+      - SMTP_ADDRESS=${SMTP_ADDRESS}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_DOMAIN=${SMTP_DOMAIN}
+      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+      - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - DOORKEEPER_JWT_SECRET_KEY=${DOORKEEPER_JWT_SECRET_KEY}
+      - DOORKEEPER_JWT_ALGORITHM=hs256
+      - DOORKEEPER_JWT_ISS=evo-auth-service
+      - MFA_ISSUER=EvoCRM
+      - SIDEKIQ_CONCURRENCY=10
+      - ACTIVE_STORAGE_SERVICE=local
     stop_grace_period: 300s
     deploy:
       mode: replicated
@@ -671,36 +671,36 @@ services:
 
   evo_auth_sidekiq:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Sidekiq Worker
-    command: bash -c "until (echo > /dev/tcp/${POSTGRES_HOST}/${POSTGRES_PORT}) >/dev/null 2>&1; do echo 'Aguardando Banco...'; sleep 2; done; until (echo > /dev/tcp/evocrm_redis/6379) >/dev/null 2>&1; do echo 'Aguardando Redis...'; sleep 2; done; bundle exec sidekiq -C config/sidekiq.yml"
+    command: bash -c "bundle exec sidekiq -C config/sidekiq.yml"
     healthcheck:
       disable: true
     networks:
       - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV="production"
-      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
-      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
-      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
-      - POSTGRES_HOST="${POSTGRES_HOST}"
-      - POSTGRES_PORT="${POSTGRES_PORT}"
-      - POSTGRES_USERNAME="${POSTGRES_USER}"
-      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
-      - POSTGRES_SSLMODE="disable"
-      - REDIS_URL="${REDIS_URL}"
-      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
-      - SMTP_ADDRESS="${SMTP_ADDRESS}"
-      - SMTP_PORT="${SMTP_PORT}"
-      - SMTP_DOMAIN="${SMTP_DOMAIN}"
-      - SMTP_AUTHENTICATION="${SMTP_AUTHENTICATION}"
-      - SMTP_ENABLE_STARTTLS_AUTO="${SMTP_ENABLE_STARTTLS_AUTO}"
-      - SMTP_USERNAME="${SMTP_USERNAME}"
-      - SMTP_PASSWORD="${SMTP_PASSWORD}"
-      - DOORKEEPER_JWT_SECRET_KEY="${DOORKEEPER_JWT_SECRET_KEY}"
-      - DOORKEEPER_JWT_ALGORITHM="hs256"
-      - DOORKEEPER_JWT_ISS="evo-auth-service"
-      - MFA_ISSUER="EvoCRM"
-      - SIDEKIQ_CONCURRENCY="10"
+      - RAILS_ENV=production
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USERNAME=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_SSLMODE=disable
+      - REDIS_URL=${REDIS_URL}
+      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
+      - SMTP_ADDRESS=${SMTP_ADDRESS}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_DOMAIN=${SMTP_DOMAIN}
+      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
+      - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - DOORKEEPER_JWT_SECRET_KEY=${DOORKEEPER_JWT_SECRET_KEY}
+      - DOORKEEPER_JWT_ALGORITHM=hs256
+      - DOORKEEPER_JWT_ISS=evo-auth-service
+      - MFA_ISSUER=EvoCRM
+      - SIDEKIQ_CONCURRENCY=10
       - ACTIVE_STORAGE_SERVICE=local
     stop_grace_period: 300s
     deploy:
@@ -722,32 +722,32 @@ services:
     networks:
       - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV="production"
-      - RAILS_SERVE_STATIC_FILES="true"
-      - RAILS_LOG_TO_STDOUT="true"
-      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
-      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
-      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
-      - POSTGRES_HOST="${POSTGRES_HOST}"
-      - POSTGRES_PORT="${POSTGRES_PORT}"
-      - POSTGRES_USERNAME="${POSTGRES_USER}"
-      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
-      - POSTGRES_SSLMODE="disable"
-      - REDIS_URL="${REDIS_URL}"
-      - EVO_AUTH_SERVICE_URL="http://evo_auth:3001"
-      - EVO_AI_CORE_SERVICE_URL="http://evo_core:5555"
-      - BACKEND_URL="https://${API_DOMAIN}"
-      - FRONTEND_URL="https://${FRONTEND_DOMAIN}"
-      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
-      - DISABLE_TELEMETRY="true"
-      - LOG_LEVEL="info"
-      - ENABLE_ACCOUNT_SIGNUP="true"
-      - ENABLE_PUSH_RELAY_SERVER="true"
-      - ENABLE_INBOX_EVENTS="true"
-      - BOT_RUNTIME_URL="http://evo_bot_runtime:8080"
-      - BOT_RUNTIME_SECRET="${BOT_RUNTIME_SECRET}"
-      - BOT_RUNTIME_POSTBACK_BASE_URL="http://evo_crm:3000"
+      - RAILS_ENV=production
+      - RAILS_SERVE_STATIC_FILES=true
+      - RAILS_LOG_TO_STDOUT=true
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USERNAME=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_SSLMODE=disable
+      - REDIS_URL=${REDIS_URL}
+      - EVO_AUTH_SERVICE_URL=http://evo_auth:3001
+      - EVO_AI_CORE_SERVICE_URL=http://evo_core:5555
+      - BACKEND_URL=https://${API_DOMAIN}
+      - FRONTEND_URL=https://${FRONTEND_DOMAIN}
+      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
+      - DISABLE_TELEMETRY=true
+      - LOG_LEVEL=info
+      - ENABLE_ACCOUNT_SIGNUP=true
+      - ENABLE_PUSH_RELAY_SERVER=true
+      - ENABLE_INBOX_EVENTS=true
+      - BOT_RUNTIME_URL=http://evo_bot_runtime:8080
+      - BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
+      - BOT_RUNTIME_POSTBACK_BASE_URL=http://evo_crm:3000
     deploy:
       mode: replicated
       replicas: 1
@@ -763,29 +763,29 @@ services:
 
   evo_crm_sidekiq:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Sidekiq Worker
-    command: bash -c "until (echo > /dev/tcp/${POSTGRES_HOST}/${POSTGRES_PORT}) >/dev/null 2>&1; do echo 'Aguardando Banco...'; sleep 2; done; until (echo > /dev/tcp/evocrm_redis/6379) >/dev/null 2>&1; do echo 'Aguardando Redis...'; sleep 2; done; bundle exec sidekiq -C config/sidekiq.yml"
+    command: bash -c "bundle exec sidekiq -C config/sidekiq.yml"
     healthcheck:
       disable: true
     networks:
       - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV="production"
-      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
-      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
-      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
-      - POSTGRES_HOST="${POSTGRES_HOST}"
-      - POSTGRES_PORT="${POSTGRES_PORT}"
-      - POSTGRES_USERNAME="${POSTGRES_USER}"
-      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
-      - POSTGRES_SSLMODE="disable"
-      - REDIS_URL="${REDIS_URL}"
-      - EVO_AUTH_SERVICE_URL="http://evo_auth:3001"
-      - EVO_AI_CORE_SERVICE_URL="http://evo_core:5555"
-      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
-      - BOT_RUNTIME_URL="http://evo_bot_runtime:8080"
-      - BOT_RUNTIME_SECRET="${BOT_RUNTIME_SECRET}"
-      - BOT_RUNTIME_POSTBACK_BASE_URL="http://evo_crm:3000"
+      - RAILS_ENV=production
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USERNAME=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_SSLMODE=disable
+      - REDIS_URL=${REDIS_URL}
+      - EVO_AUTH_SERVICE_URL=http://evo_auth:3001
+      - EVO_AI_CORE_SERVICE_URL=http://evo_core:5555
+      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
+      - BOT_RUNTIME_URL=http://evo_bot_runtime:8080
+      - BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
+      - BOT_RUNTIME_POSTBACK_BASE_URL=http://evo_crm:3000
     deploy:
       mode: replicated
       replicas: 1
@@ -848,13 +848,13 @@ services:
       - REDIS_HOST=evocrm_redis
       - "REDIS_PORT=6379"
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - "REDIS_SSL=false"
-      - "REDIS_DB=0"
-      - "REDIS_KEY_PREFIX=a2a:"
-      - "REDIS_TTL=3600"
-      - "HOST=0.0.0.0"
-      - "PORT=8000"
-      - "DEBUG=false"
+      - REDIS_SSL=false
+      - REDIS_DB=0
+      - REDIS_KEY_PREFIX=a2a:
+      - REDIS_TTL=3600
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=false
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
@@ -866,8 +866,8 @@ services:
       - API_VERSION=1.0.0
       - API_URL=https://${API_DOMAIN}
       - ORGANIZATION_NAME=Evo CRM
-      - "TOOLS_CACHE_ENABLED=true"
-      - "TOOLS_CACHE_TTL=3600"
+      - TOOLS_CACHE_ENABLED=true
+      - TOOLS_CACHE_TTL=3600
     deploy:
       mode: replicated
       replicas: 1
@@ -886,11 +886,11 @@ services:
     networks:
       - ${NETWORK_NAME}
     environment:
-      - "LISTEN_ADDR=0.0.0.0:8080"
+      - LISTEN_ADDR=0.0.0.0:8080
       - REDIS_URL=${REDIS_URL}
       - AI_PROCESSOR_URL=http://evo_processor:8000
       - BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
-      - "AI_CALL_TIMEOUT_SECONDS=30"
+      - AI_CALL_TIMEOUT_SECONDS=30
     deploy:
       mode: replicated
       replicas: 1
@@ -964,9 +964,9 @@ volumes:
     name: evocrm_processor_logs
 
 networks:
-  "${NETWORK_NAME}":
+  ${NETWORK_NAME}:
     external: true
-    name: "${NETWORK_NAME}"
+    name: ${NETWORK_NAME}
 EOFCOMPOSE
 )
 
