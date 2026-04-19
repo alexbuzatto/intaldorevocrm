@@ -339,7 +339,7 @@ fi
 REDIS_URL="redis://:${REDIS_PASSWORD}@evocrm_redis:6379/0"
 
 ## Connection string do Processor
-PROCESSOR_POSTGRES_CONNECTION_STRING="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}"
+PROCESSOR_POSTGRES_CONNECTION_STRING="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}?sslmode=disable"
 
 ## ============================================================================================
 ## AUTENTICAÇÃO NO PORTAINER
@@ -622,22 +622,28 @@ services:
 
   evo_auth:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Service (Rails) — porta 3001
-    command: sh -c "bundle exec rails db:migrate 2>&1 || echo 'Migration errors...'; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3001 -b 0.0.0.0"
+    command: sh -c "bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails s -p 3001 -b 0.0.0.0"
     networks:
       - "${NETWORK_NAME}"
     environment:
       - "RAILS_ENV=production"
       - "RAILS_MAX_THREADS=5"
+      - "RAILS_LOG_TO_STDOUT=true"
+      - "RAILS_SERVE_STATIC_FILES=true"
       - "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
       - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+      - "ENCRYPTION_KEY=${ENCRYPTION_KEY}"
       - "EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}"
       - "POSTGRES_HOST=${POSTGRES_HOST}"
       - "POSTGRES_PORT=${POSTGRES_PORT}"
+      - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_USERNAME=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
       - "POSTGRES_DATABASE=${POSTGRES_DATABASE}"
+      - "POSTGRES_DB=${POSTGRES_DATABASE}"
       - "POSTGRES_SSLMODE=disable"
       - "REDIS_URL=${REDIS_URL}"
+      - "REDIS_PASSWORD=${REDIS_PASSWORD}"
       - "FRONTEND_URL=https://${FRONTEND_DOMAIN}"
       - "BACKEND_URL=https://${API_DOMAIN}"
       - "CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
@@ -678,16 +684,23 @@ services:
       - "${NETWORK_NAME}"
     environment:
       - "RAILS_ENV=production"
+      - "RAILS_LOG_TO_STDOUT=true"
       - "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
       - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+      - "ENCRYPTION_KEY=${ENCRYPTION_KEY}"
       - "EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}"
       - "POSTGRES_HOST=${POSTGRES_HOST}"
       - "POSTGRES_PORT=${POSTGRES_PORT}"
+      - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_USERNAME=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
       - "POSTGRES_DATABASE=${POSTGRES_DATABASE}"
+      - "POSTGRES_DB=${POSTGRES_DATABASE}"
       - "POSTGRES_SSLMODE=disable"
       - "REDIS_URL=${REDIS_URL}"
+      - "REDIS_PASSWORD=${REDIS_PASSWORD}"
+      - "FRONTEND_URL=https://${FRONTEND_DOMAIN}"
+      - "BACKEND_URL=https://${API_DOMAIN}"
       - "CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
       - "SMTP_ADDRESS=${SMTP_ADDRESS}"
       - "SMTP_PORT=${SMTP_PORT}"
@@ -718,7 +731,7 @@ services:
 
   evo_crm:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Service (Rails) — porta 3000
-    command: sh -c "until wget -qO- http://evo_auth:3001/health >/dev/null 2>&1; do echo 'Waiting for auth...'; sleep 5; done; bundle exec rails db:migrate 2>&1 || true; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3000 -b 0.0.0.0"
+    command: sh -c "until wget -qO- http://evo_auth:3001/health >/dev/null 2>&1; do echo 'Waiting for auth...'; sleep 5; done; bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails s -p 3000 -b 0.0.0.0"
     networks:
       - "${NETWORK_NAME}"
     environment:
@@ -727,14 +740,18 @@ services:
       - "RAILS_LOG_TO_STDOUT=true"
       - "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
       - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+      - "ENCRYPTION_KEY=${ENCRYPTION_KEY}"
       - "EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}"
       - "POSTGRES_HOST=${POSTGRES_HOST}"
       - "POSTGRES_PORT=${POSTGRES_PORT}"
+      - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_USERNAME=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
       - "POSTGRES_DATABASE=${POSTGRES_DATABASE}"
+      - "POSTGRES_DB=${POSTGRES_DATABASE}"
       - "POSTGRES_SSLMODE=disable"
       - "REDIS_URL=${REDIS_URL}"
+      - "REDIS_PASSWORD=${REDIS_PASSWORD}"
       - "EVO_AUTH_SERVICE_URL=http://evo_auth:3001"
       - "EVO_AI_CORE_SERVICE_URL=http://evo_core:5555"
       - "BACKEND_URL=https://${API_DOMAIN}"
@@ -770,22 +787,25 @@ services:
       - "${NETWORK_NAME}"
     environment:
       - "RAILS_ENV=production"
+      - "RAILS_LOG_TO_STDOUT=true"
       - "SECRET_KEY_BASE=${SECRET_KEY_BASE}"
       - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+      - "ENCRYPTION_KEY=${ENCRYPTION_KEY}"
       - "EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}"
       - "POSTGRES_HOST=${POSTGRES_HOST}"
       - "POSTGRES_PORT=${POSTGRES_PORT}"
+      - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_USERNAME=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
       - "POSTGRES_DATABASE=${POSTGRES_DATABASE}"
+      - "POSTGRES_DB=${POSTGRES_DATABASE}"
       - "POSTGRES_SSLMODE=disable"
       - "REDIS_URL=${REDIS_URL}"
+      - "REDIS_PASSWORD=${REDIS_PASSWORD}"
       - "EVO_AUTH_SERVICE_URL=http://evo_auth:3001"
-      - "EVO_AI_CORE_SERVICE_URL=http://evo_core:5555"
+      - "BACKEND_URL=https://${API_DOMAIN}"
+      - "FRONTEND_URL=https://${FRONTEND_DOMAIN}"
       - "CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
-      - "BOT_RUNTIME_URL=http://evo_bot_runtime:8080"
-      - "BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}"
-      - "BOT_RUNTIME_POSTBACK_BASE_URL=http://evo_crm:3000"
     deploy:
       mode: replicated
       replicas: 1
