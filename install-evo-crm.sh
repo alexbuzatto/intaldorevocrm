@@ -529,7 +529,7 @@ PGEOF
         -F "file=@${PGVECTOR_TMPFILE}" \
         -F "SwarmID=${SWARM_ID}" \
         -F "endpointId=${ENDPOINT_ID}" \
-        "https://${PORTAINER_URL}/api/stacks/create/swarm/file")
+        "https://${PORTAINER_URL}/api/stacks/create/swarm/file?endpointId=${ENDPOINT_ID}")
 
     rm -f "$PGVECTOR_TMPFILE"
 
@@ -965,7 +965,7 @@ http_code=$(curl -s -o "$response_output" -w "%{http_code}" -k -X POST \
     -F "file=@${EVO_TMPFILE}" \
     -F "SwarmID=${SWARM_ID}" \
     -F "endpointId=${ENDPOINT_ID}" \
-    "https://${PORTAINER_URL}/api/stacks/create/swarm/file" 2> "$erro_output")
+    "https://${PORTAINER_URL}/api/stacks/create/swarm/file?endpointId=${ENDPOINT_ID}" 2> "$erro_output")
 
 deploy_response=$(cat "$response_output")
 rm -f "$EVO_TMPFILE" "$erro_output" "$response_output"
