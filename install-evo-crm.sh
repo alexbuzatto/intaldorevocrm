@@ -394,7 +394,12 @@ echo -e "${branco}Buscando endpoint do Portainer...${reset}"
 endpoints_response=$(curl -k -s -X GET "https://${PORTAINER_URL}/api/endpoints" \
     -H "Authorization: Bearer ${token}")
 
-ENDPOINT_ID=$(echo "${endpoints_response}" | jq -r '.[0].Id' 2>/dev/null)
+## Tenta encontrar endpoint "primary" (padrão SetupOrion), senão pega o primeiro
+ENDPOINT_ID=$(echo "${endpoints_response}" | jq -r '.[] | select(.Name == "primary") | .Id' 2>/dev/null)
+
+if [ -z "$ENDPOINT_ID" ] || [ "$ENDPOINT_ID" = "null" ]; then
+    ENDPOINT_ID=$(echo "${endpoints_response}" | jq -r '.[0].Id' 2>/dev/null)
+fi
 
 if [ -z "$ENDPOINT_ID" ] || [ "$ENDPOINT_ID" = "null" ]; then
     echo -e "${amarelo}[AVISO] Não foi possível detectar endpoint. Usando ID=1${reset}"
@@ -514,17 +519,19 @@ PGEOF
     PGVECTOR_COMPOSE=$(echo "$PGVECTOR_COMPOSE" | sed "s/PGPASS_PLACEHOLDER/${POSTGRES_PASSWORD}/g")
 
     ## Fazer escape do YAML para JSON
-    PGVECTOR_COMPOSE_ESCAPED=$(echo "$PGVECTOR_COMPOSE" | jq -Rs .)
+    ## Salvar YAML em arquivo temporário para deploy via multipart (padrão SetupOrion)
+    PGVECTOR_TMPFILE=$(mktemp /tmp/evocrm_pgvector_XXXXXX.yaml)
+    echo "$PGVECTOR_COMPOSE" > "$PGVECTOR_TMPFILE"
 
-    pg_response=$(curl -k -s -X POST "https://${PORTAINER_URL}/api/stacks/create/swarm/string" \
+    pg_response=$(curl -k -s -X POST \
         -H "Authorization: Bearer ${token}" \
-        -H "Content-Type: application/json" \
-        -d "{
-            \"name\": \"evocrm_pgvector\",
-            \"swarmID\": \"${SWARM_ID}\",
-            \"stackFileContent\": ${PGVECTOR_COMPOSE_ESCAPED},
-            \"endpointId\": ${ENDPOINT_ID}
-        }")
+        -F "Name=evocrm_pgvector" \
+        -F "file=@${PGVECTOR_TMPFILE}" \
+        -F "SwarmID=${SWARM_ID}" \
+        -F "endpointId=${ENDPOINT_ID}" \
+        "https://${PORTAINER_URL}/api/stacks/create/swarm/file")
+
+    rm -f "$PGVECTOR_TMPFILE"
 
     if echo "$pg_response" | jq -e '.Id' > /dev/null 2>&1; then
         echo -e "  ${verde}[OK] PgVector instalado com sucesso!${reset}"
@@ -940,22 +947,30 @@ echo -e "  ${verde}[OK] Stack do EVO CRM gerada com sucesso!${reset}"
 echo ""
 echo -e "${branco}Fazendo deploy da stack no Portainer...${reset}"
 
-## Escape do compose para JSON
-EVO_COMPOSE_ESCAPED=$(echo "$EVO_COMPOSE" | jq -Rs .)
-
 STACK_NAME="evo_crm"
 
-deploy_response=$(curl -k -s -X POST "https://${PORTAINER_URL}/api/stacks/create/swarm/string" \
-    -H "Authorization: Bearer ${token}" \
-    -H "Content-Type: application/json" \
-    -d "{
-        \"name\": \"${STACK_NAME}\",
-        \"swarmID\": \"${SWARM_ID}\",
-        \"stackFileContent\": ${EVO_COMPOSE_ESCAPED},
-        \"endpointId\": ${ENDPOINT_ID}
-    }")
+## Salvar YAML em arquivo temporário para deploy via multipart (padrão SetupOrion)
+EVO_TMPFILE=$(mktemp /tmp/evo_crm_XXXXXX.yaml)
+echo "$EVO_COMPOSE" > "$EVO_TMPFILE"
 
-if echo "$deploy_response" | jq -e '.Id' > /dev/null 2>&1; then
+## Guardar o compose escaped para possível update
+EVO_COMPOSE_ESCAPED=$(echo "$EVO_COMPOSE" | jq -Rs .)
+
+erro_output=$(mktemp)
+response_output=$(mktemp)
+
+http_code=$(curl -s -o "$response_output" -w "%{http_code}" -k -X POST \
+    -H "Authorization: Bearer ${token}" \
+    -F "Name=${STACK_NAME}" \
+    -F "file=@${EVO_TMPFILE}" \
+    -F "SwarmID=${SWARM_ID}" \
+    -F "endpointId=${ENDPOINT_ID}" \
+    "https://${PORTAINER_URL}/api/stacks/create/swarm/file" 2> "$erro_output")
+
+deploy_response=$(cat "$response_output")
+rm -f "$EVO_TMPFILE" "$erro_output" "$response_output"
+
+if [ "$http_code" -eq 200 ] && echo "$deploy_response" | jq -e '.Id' > /dev/null 2>&1; then
     echo -e "  ${verde}[OK] Stack '${STACK_NAME}' criada com sucesso no Portainer!${reset}"
 else
     deploy_err=$(echo "$deploy_response" | jq -r '.message // .details // "Erro desconhecido"' 2>/dev/null)
