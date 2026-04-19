@@ -41,8 +41,12 @@ echo "==========================================================================
 
 read -p "Nome da rede interna (ex: eclick): " NETWORK_NAME
 read -p "Senha do PostgreSQL: " POSTGRES_PASSWORD
-REDIS_PASSWORD=$(openssl rand -hex 16)
-echo "Senha Redis: [Gerada automaticamente: ${REDIS_PASSWORD}]"
+read -p "Senha do Redis (ENTER=sem senha): " REDIS_INPUT
+if [ -z "$REDIS_INPUT" ]; then
+    REDIS_PASSWORD=""
+else
+    REDIS_PASSWORD=$REDIS_INPUT
+fi
 
 echo ""
 echo "==================================================================================================="
@@ -144,10 +148,16 @@ POSTGRES_DATABASE=evo_community
 # =============================================================================
 # REDIS
 # =============================================================================
-REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-REDIS_PASSWORD=${REDIS_PASSWORD}
+if [ -z "$REDIS_PASSWORD" ]; then
+    REDIS_URL="redis://redis:6379/0"
+else
+    REDIS_URL="redis://:${REDIS_PASSWORD}@redis:6379/0"
+fi
+
+REDIS_URL=${REDIS_URL}
 REDIS_HOST=redis
 REDIS_PORT=6379
+REDIS_PASSWORD=${REDIS_PASSWORD}
 REDIS_DB=0
 REDIS_SSL=false
 
@@ -312,7 +322,12 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
-    command: ["sh", "-c", "redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes"]
+    if [ -z "$REDIS_PASSWORD" ]; then
+    REDIS_CMD="redis-server --appendonly yes"
+else
+    REDIS_CMD="redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes"
+fi
+    command: ["sh", "-c", "${REDIS_CMD}"]
     volumes:
       - redis_data:/data
     networks:
@@ -334,7 +349,7 @@ services:
     env_file: .env
     environment:
       RAILS_ENV: production
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      REDIS_URL: ${REDIS_URL_EVO_AUTH}
       POSTGRES_HOST: postgres
     networks:
       - ${NETWORK_NAME}
@@ -372,7 +387,7 @@ services:
     env_file: .env
     environment:
       RAILS_ENV: production
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      REDIS_URL: ${REDIS_URL_EVO_AUTH}
       POSTGRES_HOST: postgres
     networks:
       - ${NETWORK_NAME}
@@ -396,7 +411,7 @@ services:
     env_file: .env
     environment:
       RAILS_ENV: production
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      REDIS_URL: ${REDIS_URL_EVO_CRM}
       POSTGRES_HOST: postgres
       EVO_AUTH_SERVICE_URL: http://evo-auth:3001
       EVO_AI_CORE_SERVICE_URL: http://evo-core:5555
@@ -439,7 +454,7 @@ services:
     env_file: .env
     environment:
       RAILS_ENV: production
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      REDIS_URL: ${REDIS_URL_EVO_CRM}
       POSTGRES_HOST: postgres
       EVO_AUTH_SERVICE_URL: http://evo-auth:3001
       EVO_AI_CORE_SERVICE_URL: http://evo-core:5555
@@ -533,7 +548,7 @@ services:
     env_file: .env
     environment:
       LISTEN_ADDR: 0.0.0.0:8080
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_URL: ${REDIS_URL_EVO_BOT}
       AI_PROCESSOR_URL: http://evo-processor:8000
       BOT_RUNTIME_SECRET: ${BOT_RUNTIME_SECRET}
     networks:
