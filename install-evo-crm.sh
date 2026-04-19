@@ -197,53 +197,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       FRONTEND_URL: https://${FRONTEND_DOMAIN}
       MAILER_SENDER_EMAIL: noreply@${FRONTEND_DOMAIN}
-      SMTP_ADDRESS: smtp.gmail.com
-      SMTP_PORT: "587"
-    networks:
-      - ${NETWORK_NAME}
-    volumes:
-      - evo_auth_uploads:/app/public/uploads
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      replicas: 1
-      resources:
-        limits:
-          cpus: 1
-          memory: 1024M
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.evo-auth.rule=Host(\`${API_DOMAIN}\`) && PathPrefix(\`/auth\`)
-        - traefik.http.routers.evo-auth.entrypoints=websecure
-        - traefik.http.routers.evo-auth.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.evo-auth.service=evo-auth
-        - traefik.http.services.evo-auth.loadbalancer.server.port=3001
-        - traefik.http.middlewares.evo-auth-stripprefix.stripprefix.forceSlash=false
-        - traefik.http.routers.evo-auth.middlewares=evo-auth-stripprefix
-
-  evo-auth-sidekiq:
-    build:
-      context: ./evo-auth-service-community
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    environment:
-      RAILS_ENV: production
-      REDIS_URL: ${REDIS_URL_EVO_AUTH}
-      POSTGRES_HOST: postgres
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      DOORKEEPER_JWT_SECRET_KEY: ${DOORKEEPER_JWT_SECRET_KEY}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      FRONTEND_URL: https://${FRONTEND_DOMAIN}
-      MAILER_SENDER_EMAIL: noreply@${FRONTEND_DOMAIN}
-      SMTP_ADDRESS: smtp.gmail.com
-      SMTP_PORT: "587"
     networks:
       - ${NETWORK_NAME}
     depends_on:
