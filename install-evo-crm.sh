@@ -622,7 +622,7 @@ services:
 
   evo_auth:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Service (Rails) — porta 3001
-    command: sh -c "bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails s -p 3001 -b 0.0.0.0"
+    command: sh -c "bundle exec rails db:prepare && bundle exec rails s -p 3001 -b 0.0.0.0"
     networks:
       - "${NETWORK_NAME}"
     environment:
@@ -731,7 +731,7 @@ services:
 
   evo_crm:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Service (Rails) — porta 3000
-    command: sh -c "until wget -qO- http://evo_auth:3001/health >/dev/null 2>&1; do echo 'Waiting for auth...'; sleep 5; done; bundle exec rails db:migrate && bundle exec rails db:seed && bundle exec rails s -p 3000 -b 0.0.0.0"
+    command: sh -c "until wget -qO- http://evo_auth:3001/health >/dev/null 2>&1; do echo 'Waiting for auth...'; sleep 5; done; bundle exec rails db:prepare && bundle exec rails s -p 3000 -b 0.0.0.0"
     networks:
       - "${NETWORK_NAME}"
     environment:
