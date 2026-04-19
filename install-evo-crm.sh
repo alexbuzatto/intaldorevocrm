@@ -671,7 +671,7 @@ services:
 
   evo_auth_sidekiq:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Sidekiq Worker
-    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    command: bash -c "bundle exec sidekiq"
     networks:
       - ${NETWORK_NAME}
     environment:
@@ -761,7 +761,7 @@ services:
 
   evo_crm_sidekiq:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Sidekiq Worker
-    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    command: bash -c "bundle exec sidekiq"
     networks:
       - ${NETWORK_NAME}
     environment:
