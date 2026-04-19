@@ -542,6 +542,15 @@ PGEOF
     fi
 fi
 
+
+## Criar banco evo_community no PostgreSQL externo se ele nao existir
+if [ "$INSTALL_PGVECTOR" = false ]; then
+    echo ""
+    echo -e "${branco}Verificando e garantindo que o banco de dados '${POSTGRES_DATABASE}' exista em '${POSTGRES_HOST}'...${reset}"
+    docker run --rm --network "${NETWORK_NAME}" -e PGPASSWORD="${POSTGRES_PASSWORD}" postgres:16 psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" -c "CREATE DATABASE ${POSTGRES_DATABASE};" >/dev/null 2>&1 || true
+    echo -e "  ${verde}[OK] Banco de dados verificado com sucesso!${reset}"
+fi
+
 ## ============================================================================================
 ## GERAÇÃO DO YAML DO EVO CRM
 ## ============================================================================================
