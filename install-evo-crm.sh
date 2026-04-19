@@ -710,7 +710,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 512M
+          memory: 1024M
 
 ## --------------------------- ORION --------------------------- ##
 
@@ -791,7 +791,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 512M
+          memory: 1024M
 
 ## --------------------------- ORION --------------------------- ##
 
@@ -828,7 +828,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 512M
+          memory: 1024M
 
 ## --------------------------- ORION --------------------------- ##
 
@@ -953,7 +953,7 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 512M
+          memory: 1024M
 
 ## --------------------------- ORION --------------------------- ##
 
