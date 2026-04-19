@@ -21,6 +21,25 @@ echo ""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+REPO_URL="https://raw.githubusercontent.com/alexbuzatto/intaldorevocrm/main"
+
+echo "Verificando arquivos de configuracao..."
+
+if [ ! -f "${SCRIPT_DIR}/portainer.yaml" ]; then
+    echo "Baixando portainer.yaml..."
+    curl -sSL "${REPO_URL}/portainer.yaml" -o "${SCRIPT_DIR}/portainer.yaml"
+fi
+
+if [ ! -f "${SCRIPT_DIR}/traefik.yaml" ]; then
+    echo "Baixando traefik.yaml..."
+    curl -sSL "${REPO_URL}/traefik.yaml" -o "${SCRIPT_DIR}/traefik.yaml"
+fi
+
+if [ ! -f "${SCRIPT_DIR}/n8n.yaml" ]; then
+    echo "Baixando n8n.yaml..."
+    curl -sSL "${REPO_URL}/n8n.yaml" -o "${SCRIPT_DIR}/n8n.yaml"
+fi
+
 if [ -f "${SCRIPT_DIR}/portainer.yaml" ]; then
     echo "Encontrado portainer.yaml, extraindo configuracoes..."
     NETWORK_NAME=$(grep 'networks:' ${SCRIPT_DIR}/portainer.yaml -A 1 | grep '    - ' | awk '{print $2}' | head -1)
