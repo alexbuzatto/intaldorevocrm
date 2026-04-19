@@ -808,15 +808,15 @@ services:
     environment:
       - POSTGRES_CONNECTION_STRING=${PROCESSOR_POSTGRES_CONNECTION_STRING}
       - REDIS_HOST=evocrm_redis
-      - REDIS_PORT=6379
+      - "REDIS_PORT=6379"
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_SSL=false
-      - REDIS_DB=0
-      - REDIS_KEY_PREFIX=a2a:
-      - REDIS_TTL=3600
-      - HOST=0.0.0.0
-      - PORT=8000
-      - DEBUG=false
+      - "REDIS_SSL=false"
+      - "REDIS_DB=0"
+      - "REDIS_KEY_PREFIX=a2a:"
+      - "REDIS_TTL=3600"
+      - "HOST=0.0.0.0"
+      - "PORT=8000"
+      - "DEBUG=false"
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
@@ -828,8 +828,8 @@ services:
       - API_VERSION=1.0.0
       - API_URL=https://${API_DOMAIN}
       - ORGANIZATION_NAME=Evo CRM
-      - TOOLS_CACHE_ENABLED=true
-      - TOOLS_CACHE_TTL=3600
+      - "TOOLS_CACHE_ENABLED=true"
+      - "TOOLS_CACHE_TTL=3600"
     deploy:
       mode: replicated
       replicas: 1
@@ -848,11 +848,11 @@ services:
     networks:
       - ${NETWORK_NAME}
     environment:
-      - LISTEN_ADDR=0.0.0.0:8080
+      - "LISTEN_ADDR=0.0.0.0:8080"
       - REDIS_URL=${REDIS_URL}
       - AI_PROCESSOR_URL=http://evo_processor:8000
       - BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
-      - AI_CALL_TIMEOUT_SECONDS=30
+      - "AI_CALL_TIMEOUT_SECONDS=30"
     deploy:
       mode: replicated
       replicas: 1
