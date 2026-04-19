@@ -473,9 +473,19 @@ fi
 echo -e "$verde Autenticado com sucesso!$reset"
 
 echo ""
-echo -e "$amarelo===================================================================================================\e[0m"
-echo -e "$amarelo=                          $branco Criando stack no Portainer...                            $amarelo=\e[0m"
-echo -e "$amarelo===================================================================================================\e[0m"
+echo "==================================================================================================="
+echo "                           FAZENDO DEPLOY DA STACK"
+echo "==================================================================================================="
+
+echo "Entrando na pasta da stack..."
+cd evo-crm-stack
+
+echo "Fazendo deploy com docker stack..."
+docker stack deploy -c docker-compose.yaml evo_crm --prune 2>&1
+
+echo ""
+echo "==================================================================================================="
+echo "                           INSTALACAO CONCLUIDA COM SUCESSO!"
 
 stack_name="evo_crm"
 
