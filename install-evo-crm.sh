@@ -108,6 +108,7 @@ echo -e "$amarelo=                          $branco Criando arquivos de configur
 echo -e "$amarelo===================================================================================================\e[0m"
 
 mkdir -p "evo-crm-stack"
+rm -f evo-crm-stack/.env
 cp -r evo-crm-community/evo-auth-service-community evo-crm-stack/
 cp -r evo-crm-community/evo-ai-crm-community evo-crm-stack/
 cp -r evo-crm-community/evo-ai-core-service-community evo-crm-stack/
@@ -115,180 +116,25 @@ cp -r evo-crm-community/evo-ai-processor-community evo-crm-stack/
 cp -r evo-crm-community/evo-bot-runtime evo-crm-stack/
 cp -r evo-crm-community/evo-ai-frontend-community evo-crm-stack/
 
-cat > evo-crm-stack/.env <<EOF
-# =============================================================================
-# EVO CRM Community - Configuração Gerada
-# =============================================================================
-
-# =============================================================================
-# DOMAINS
-# =============================================================================
-API_DOMAIN=${API_DOMAIN}
-FRONTEND_DOMAIN=${FRONTEND_DOMAIN}
-
-# =============================================================================
-# SHARED SECRETS
-# =============================================================================
-SECRET_KEY_BASE=${SECRET_KEY_BASE}
-JWT_SECRET_KEY=${JWT_SECRET_KEY}
-DOORKEEPER_JWT_SECRET_KEY=${DOORKEEPER_JWT_SECRET_KEY}
-EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
-BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
-ENCRYPTION_KEY=${ENCRYPTION_KEY}
-
-# =============================================================================
-# DATABASE (PostgreSQL)
-# =============================================================================
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-POSTGRES_DATABASE=evo_community
-
-# =============================================================================
-# REDIS
-# =============================================================================
+# Define variáveis do Redis para uso no compose
 if [ -z "$REDIS_PASSWORD" ]; then
-    REDIS_URL="redis://redis:6379/0"
+    REDIS_URL_EVO_AUTH="redis://redis:6379/1"
+    REDIS_URL_EVO_CRM="redis://redis:6379/0"
+    REDIS_URL_EVO_BOT="redis://redis:6379"
 else
-    REDIS_URL="redis://:${REDIS_PASSWORD}@redis:6379/0"
+    REDIS_URL_EVO_AUTH="redis://:${REDIS_PASSWORD}@redis:6379/1"
+    REDIS_URL_EVO_CRM="redis://:${REDIS_PASSWORD}@redis:6379/0"
+    REDIS_URL_EVO_BOT="redis://:${REDIS_PASSWORD}@redis:6379"
 fi
 
-REDIS_URL=${REDIS_URL}
-REDIS_HOST=redis
-REDIS_PORT=6379
-REDIS_PASSWORD=${REDIS_PASSWORD}
-REDIS_DB=0
-REDIS_SSL=false
+if [ -z "$REDIS_PASSWORD" ]; then
+    REDIS_CMD="redis-server --appendonly yes"
+else
+    REDIS_CMD="redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes"
+fi
 
-PROCESSOR_REDIS_HOST=redis
-PROCESSOR_REDIS_PORT=6379
-PROCESSOR_REDIS_PASSWORD=${REDIS_PASSWORD}
-PROCESSOR_REDIS_DB=0
-
-PROCESSOR_POSTGRES_CONNECTION_STRING=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/evo_community
-
-# =============================================================================
-# CORE SERVICE
-# =============================================================================
-DB_HOST=postgres
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=${POSTGRES_PASSWORD}
-DB_NAME=evo_community
-DB_SSLMODE=disable
-DB_MAX_IDLE_CONNS=10
-DB_MAX_OPEN_CONNS=100
-DB_CONN_MAX_LIFETIME=1h
-DB_CONN_MAX_IDLE_TIME=30m
-
-# =============================================================================
-# EMAIL (SMTP)
-# =============================================================================
-MAILER_SENDER_EMAIL=noreply@${FRONTEND_DOMAIN}
-SMTP_ADDRESS=smtp.gmail.com
-SMTP_PORT=587
-SMTP_DOMAIN=${FRONTEND_DOMAIN}
-SMTP_AUTHENTICATION=plain
-SMTP_ENABLE_STARTTLS_AUTO=true
-SMTP_USERNAME=
-SMTP_PASSWORD=
-SMTP_ENABLE_STARTTLS_AUTO=true
-SMTP_USERNAME=
-SMTP_PASSWORD=
-
-# =============================================================================
-# ADMIN SEED
-# =============================================================================
-ADMIN_EMAIL=${ADMIN_EMAIL}
-ADMIN_PASSWORD=${ADMIN_PASSWORD}
-ADMIN_NAME=${ADMIN_NAME}
-ORGANIZATION_NAME=${ORGANIZATION_NAME}
-SEED_ADMIN_EMAIL=${ADMIN_EMAIL}
-SEED_ADMIN_PASSWORD=${ADMIN_PASSWORD}
-SEED_ADMIN_NAME=${ADMIN_NAME}
-SEED_ORGANIZATION_NAME=${ORGANIZATION_NAME}
-
-# =============================================================================
-# AUTH SERVICE
-# =============================================================================
-RAILS_ENV=production
-RAILS_MAX_THREADS=5
-FRONTEND_URL=https://${FRONTEND_DOMAIN}
-MFA_ISSUER=EvoCRM
-SIDEKIQ_CONCURRENCY=10
-ACTIVE_STORAGE_SERVICE=local
-DOORKEEPER_JWT_SECRET_KEY=${DOORKEEPER_JWT_SECRET_KEY}
-DOORKEEPER_JWT_ALGORITHM=hs256
-DOORKEEPER_JWT_ISS=evo-auth-service
-
-# =============================================================================
-# CRM SERVICE
-# =============================================================================
-BACKEND_URL=https://${API_DOMAIN}
-EVO_AI_CORE_SERVICE_URL=http://evo-core:5555
-EVO_AUTH_SERVICE_URL=http://evo-auth:3001
-CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
-DISABLE_TELEMETRY=true
-RAILS_LOG_TO_STDOUT=true
-LOG_LEVEL=info
-LOG_SIZE=500
-ENABLE_ACCOUNT_SIGNUP=true
-ENABLE_PUSH_RELAY_SERVER=true
-ENABLE_INBOX_EVENTS=true
-
-# =============================================================================
-# CORE SERVICE
-# =============================================================================
-JWT_ALGORITHM=HS256
-EVOLUTION_BASE_URL=http://evo-crm:3000
-EVO_AUTH_BASE_URL=http://evo-auth:3001
-AI_PROCESSOR_URL=http://evo-processor:8000
-
-# =============================================================================
-# PROCESSOR SERVICE
-# =============================================================================
-API_TITLE=Agent Processor Community
-API_DESCRIPTION=Agent Processor Community for Evo CRM
-API_VERSION=1.0.0
-API_URL=http://localhost:8000
-ORGANIZATION_URL=https://${FRONTEND_DOMAIN}
-POSTGRES_CONNECTION_STRING=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/evo_community
-REDIS_HOST=redis
-REDIS_PORT=6379
-REDIS_PASSWORD=${REDIS_PASSWORD}
-REDIS_DB=0
-REDIS_SSL=false
-REDIS_KEY_PREFIX=a2a:
-REDIS_TTL=3600
-TOOLS_CACHE_ENABLED=true
-TOOLS_CACHE_TTL=3600
-EVO_AI_CRM_URL=http://evo-crm:3000
-HOST=0.0.0.0
-PORT=8000
-DEBUG=false
-CORE_SERVICE_URL=http://evo-core:5555/api/v1
-APP_URL=https://${API_DOMAIN}
-
-# =============================================================================
-# BOT RUNTIME
-# =============================================================================
-LISTEN_ADDR=0.0.0.0:8080
-BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
-AI_PROCESSOR_API_KEY=${EVOAI_CRM_API_TOKEN}
-AI_CALL_TIMEOUT_SECONDS=30
-BOT_RUNTIME_URL=http://evo-bot-runtime:8080
-BOT_RUNTIME_POSTBACK_BASE_URL=http://evo-crm:3000
-
-# =============================================================================
-# FRONTEND
-# =============================================================================
-VITE_APP_ENV=production
-VITE_API_URL=https://${API_DOMAIN}
-VITE_AUTH_API_URL=https://${API_DOMAIN}
-VITE_EVOAI_API_URL=https://${API_DOMAIN}
-VITE_AGENT_PROCESSOR_URL=https://${API_DOMAIN}
-EOF
+# Remove arquivo .env - todas as variáveis vão direto no compose
+rm -f evo-crm-stack/.env
 
 cat > evo-crm-stack/docker-compose.yaml <<EOF
 version: "3.8"
@@ -322,11 +168,6 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
-    if [ -z "$REDIS_PASSWORD" ]; then
-    REDIS_CMD="redis-server --appendonly yes"
-else
-    REDIS_CMD="redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes"
-fi
     command: ["sh", "-c", "${REDIS_CMD}"]
     volumes:
       - redis_data:/data
@@ -346,11 +187,18 @@ fi
       context: ./evo-auth-service-community
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       RAILS_ENV: production
       REDIS_URL: ${REDIS_URL_EVO_AUTH}
       POSTGRES_HOST: postgres
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      DOORKEEPER_JWT_SECRET_KEY: ${DOORKEEPER_JWT_SECRET_KEY}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      FRONTEND_URL: https://${FRONTEND_DOMAIN}
+      MAILER_SENDER_EMAIL: noreply@${FRONTEND_DOMAIN}
+      SMTP_ADDRESS: smtp.gmail.com
+      SMTP_PORT: "587"
     networks:
       - ${NETWORK_NAME}
     volumes:
@@ -384,11 +232,18 @@ fi
       context: ./evo-auth-service-community
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       RAILS_ENV: production
       REDIS_URL: ${REDIS_URL_EVO_AUTH}
       POSTGRES_HOST: postgres
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      DOORKEEPER_JWT_SECRET_KEY: ${DOORKEEPER_JWT_SECRET_KEY}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      FRONTEND_URL: https://${FRONTEND_DOMAIN}
+      MAILER_SENDER_EMAIL: noreply@${FRONTEND_DOMAIN}
+      SMTP_ADDRESS: smtp.gmail.com
+      SMTP_PORT: "587"
     networks:
       - ${NETWORK_NAME}
     depends_on:
@@ -408,16 +263,21 @@ fi
       context: ./evo-ai-crm-community
       dockerfile: docker/Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       RAILS_ENV: production
       REDIS_URL: ${REDIS_URL_EVO_CRM}
       POSTGRES_HOST: postgres
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       EVO_AUTH_SERVICE_URL: http://evo-auth:3001
       EVO_AI_CORE_SERVICE_URL: http://evo-core:5555
       BOT_RUNTIME_URL: http://evo-bot-runtime:8080
       BOT_RUNTIME_SECRET: ${BOT_RUNTIME_SECRET}
       BOT_RUNTIME_POSTBACK_BASE_URL: http://evo-crm:3000
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ENABLE_ACCOUNT_SIGNUP: "true"
+      DISABLE_TELEMETRY: "true"
+      RAILS_LOG_TO_STDOUT: "true"
     networks:
       - ${NETWORK_NAME}
     volumes:
@@ -446,21 +306,22 @@ fi
         - traefik.http.routers.evo-crm.service=evo-crm
         - traefik.http.services.evo-crm.loadbalancer.server.port=3000
 
-  evo-crm-sidekiq:
+evo-crm-sidekiq:
     build:
       context: ./evo-ai-crm-community
       dockerfile: docker/Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       RAILS_ENV: production
       REDIS_URL: ${REDIS_URL_EVO_CRM}
       POSTGRES_HOST: postgres
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       EVO_AUTH_SERVICE_URL: http://evo-auth:3001
       EVO_AI_CORE_SERVICE_URL: http://evo-core:5555
       BOT_RUNTIME_URL: http://evo-bot-runtime:8080
       BOT_RUNTIME_SECRET: ${BOT_RUNTIME_SECRET}
-      BOT_RUNTIME_POSTBACK_BASE_URL: http://evo-crm:3000
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - ${NETWORK_NAME}
     depends_on:
@@ -480,7 +341,6 @@ fi
       context: ./evo-ai-core-service-community
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       DB_HOST: postgres
       DB_PORT: "5432"
@@ -492,6 +352,8 @@ fi
       EVOLUTION_BASE_URL: http://evo-crm:3000
       EVO_AUTH_BASE_URL: http://evo-auth:3001
       AI_PROCESSOR_URL: http://evo-processor:8000
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     networks:
       - ${NETWORK_NAME}
     depends_on:
@@ -512,7 +374,6 @@ fi
       context: ./evo-ai-processor-community
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       POSTGRES_CONNECTION_STRING: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/evo_community
       REDIS_HOST: redis
@@ -523,6 +384,9 @@ fi
       PORT: "8000"
       EVO_AI_CRM_URL: http://evo-crm:3000
       CORE_SERVICE_URL: http://evo-core:5555/api/v1
+      EVOAI_CRM_API_TOKEN: ${EVOAI_CRM_API_TOKEN}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      APP_URL: https://${API_DOMAIN}
     networks:
       - ${NETWORK_NAME}
     depends_on:
@@ -545,12 +409,12 @@ fi
       context: ./evo-bot-runtime
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       LISTEN_ADDR: 0.0.0.0:8080
       REDIS_URL: ${REDIS_URL_EVO_BOT}
       AI_PROCESSOR_URL: http://evo-processor:8000
       BOT_RUNTIME_SECRET: ${BOT_RUNTIME_SECRET}
+      AI_PROCESSOR_API_KEY: ${EVOAI_CRM_API_TOKEN}
     networks:
       - ${NETWORK_NAME}
     depends_on:
@@ -573,7 +437,6 @@ fi
       context: ./evo-ai-frontend-community
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
     environment:
       VITE_API_URL: https://${API_DOMAIN}
       VITE_AUTH_API_URL: https://${API_DOMAIN}
