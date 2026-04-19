@@ -21,70 +21,41 @@ echo ""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-REPO_URL="https://raw.githubusercontent.com/alexbuzatto/intaldorevocrm/main"
+echo "==================================================================================================="
+echo "                           INSTALADOR EVO CRM COMMUNITY"
+echo "==================================================================================================="
+echo ""
 
-echo "Verificando arquivos de configuracao..."
+echo "==================================================================================================="
+echo "                          Credenciais do Portainer"
+echo "==================================================================================================="
 
-if [ ! -f "${SCRIPT_DIR}/portainer.yaml" ]; then
-    echo "Baixando portainer.yaml..."
-    curl -sSL "${REPO_URL}/portainer.yaml" -o "${SCRIPT_DIR}/portainer.yaml"
-fi
+read -p "Url do Portainer (ex: painel.eclicksolucoes.com.br): " PORTAINER_URL
+read -p "Usuario do Portainer: " PORTAINER_USER
+read -p "Senha do Portainer: " PORTAINER_PASS
+echo ""
 
-if [ ! -f "${SCRIPT_DIR}/traefik.yaml" ]; then
-    echo "Baixando traefik.yaml..."
-    curl -sSL "${REPO_URL}/traefik.yaml" -o "${SCRIPT_DIR}/traefik.yaml"
-fi
+echo "==================================================================================================="
+echo "                          Configuracoes do Banco de Dados"
+echo "==================================================================================================="
 
-if [ ! -f "${SCRIPT_DIR}/n8n.yaml" ]; then
-    echo "Baixando n8n.yaml..."
-    curl -sSL "${REPO_URL}/n8n.yaml" -o "${SCRIPT_DIR}/n8n.yaml"
-fi
-
-if [ -f "${SCRIPT_DIR}/portainer.yaml" ]; then
-    echo "Encontrado portainer.yaml, extraindo configuracoes..."
-    NETWORK_NAME=$(grep 'networks:' ${SCRIPT_DIR}/portainer.yaml -A 1 | grep '    - ' | awk '{print $2}' | head -1)
-    PORTAINER_DOMAIN=$(grep 'traefik.http.routers.portainer.rule' ${SCRIPT_DIR}/portainer.yaml | sed 's/.*Host(`//' | sed 's/`.*//' | tr -d ' ')
-    echo "   Rede interna: ${NETWORK_NAME}"
-    echo "   Dominio Portainer: ${PORTAINER_DOMAIN}"
-    
-    PORTAINER_URL=${PORTAINER_DOMAIN}
-else
-    echo -e "$vermelho portainer.yaml nao encontrado!$reset"
-    exit 1
-fi
-
-if [ -f "${SCRIPT_DIR}/traefik.yaml" ]; then
-    echo "Encontrado traefik.yaml, extraindo configuracoes..."
-    TRAEFIK_DOMAIN=$(grep 'traefik.http.routers.traefik.rule' ${SCRIPT_DIR}/traefik.yaml | sed 's/.*Host(`//; s/`.*//' || echo "")
-    TRAEFIK_EMAIL=$(grep 'acme.email' ${SCRIPT_DIR}/traefik.yaml | sed 's/.*acme.email=//; s/".*//' | head -1)
-    echo "   Dominio Traefik: ${TRAEFIK_DOMAIN}"
-    echo "   Email LetsEncrypt: ${TRAEFIK_EMAIL}"
-fi
-
-if [ -f "${SCRIPT_DIR}/n8n.yaml" ]; then
-    echo "Encontrado n8n.yaml, extraindo senhas..."
-    POSTGRES_PASSWORD=$(grep 'DB_POSTGRESDB_PASSWORD=' ${SCRIPT_DIR}/n8n.yaml | head -1 | sed 's/.*DB_POSTGRESDB_PASSWORD=//' | tr -d ' ')
-    REDIS_PASSWORD=$(openssl rand -hex 16)
-    echo "   Senha PostgreSQL: ${POSTGRES_PASSWORD}"
-    echo "   Senha Redis: [Gerada automaticamente]"
-else
-    echo "n8n.yaml nao encontrado, gerando senhas..."
-    read -p "Senha do PostgreSQL: " POSTGRES_PASSWORD
-    read -p "Senha do Redis: " REDIS_PASSWORD
-fi
+read -p "Nome da rede interna (ex: eclick): " NETWORK_NAME
+read -p "Senha do PostgreSQL: " POSTGRES_PASSWORD
+REDIS_PASSWORD=$(openssl rand -hex 16)
+echo "Senha Redis: [Gerada automaticamente: ${REDIS_PASSWORD}]"
 
 echo ""
-echo -e "$amarelo===================================================================================================\e[0m"
-echo -e "$amarelo=                          Dominios                            $amarelo=\e[0m"
-echo -e "$amarelo===================================================================================================\e[0m"
+echo "==================================================================================================="
+echo "                          Dominios"
+echo "==================================================================================================="
 
 read -p "Dominio principal (API): " API_DOMAIN
 read -p "Dominio do Frontend: " FRONTEND_DOMAIN
 
 echo ""
-echo -e "$amarelo===================================================================================================\e[0m"
-echo -e "$amarelo=                          Dados do Administrador                            $amarelo=\e[0m"
-echo -e "$amarelo===================================================================================================\e[0m"
+echo "==================================================================================================="
+echo "                          Dados do Administrador"
+echo "==================================================================================================="
 
 read -p "Email do administrador: " ADMIN_EMAIL
 read -p "Nome do administrador: " ADMIN_NAME
