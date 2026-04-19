@@ -622,7 +622,7 @@ services:
 
   evo_auth:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Service (Rails) — porta 3001
-    command: bash -c "bundle exec rails db:migrate 2>&1 || echo 'Migration errors...'; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3001 -b 0.0.0.0"
+    command: bash -c "until (echo > /dev/tcp/${POSTGRES_HOST}/${POSTGRES_PORT}) >/dev/null 2>&1; do echo 'Aguardando Banco...'; sleep 2; done; bundle exec rails db:migrate 2>&1 || echo 'Migration errors...'; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3001 -b 0.0.0.0"
     networks:
       - "${NETWORK_NAME}"
     environment:
@@ -671,7 +671,7 @@ services:
 
   evo_auth_sidekiq:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Sidekiq Worker
-    command: bash -c "bundle exec sidekiq -C config/sidekiq.yml"
+    command: bash -c "until (echo > /dev/tcp/${POSTGRES_HOST}/${POSTGRES_PORT}) >/dev/null 2>&1; do echo 'Aguardando Banco...'; sleep 2; done; until (echo > /dev/tcp/evocrm_redis/6379) >/dev/null 2>&1; do echo 'Aguardando Redis...'; sleep 2; done; bundle exec sidekiq -C config/sidekiq.yml"
     healthcheck:
       disable: true
     networks:
@@ -763,7 +763,7 @@ services:
 
   evo_crm_sidekiq:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Sidekiq Worker
-    command: bash -c "bundle exec sidekiq -C config/sidekiq.yml"
+    command: bash -c "until (echo > /dev/tcp/${POSTGRES_HOST}/${POSTGRES_PORT}) >/dev/null 2>&1; do echo 'Aguardando Banco...'; sleep 2; done; until (echo > /dev/tcp/evocrm_redis/6379) >/dev/null 2>&1; do echo 'Aguardando Redis...'; sleep 2; done; bundle exec sidekiq -C config/sidekiq.yml"
     healthcheck:
       disable: true
     networks:
