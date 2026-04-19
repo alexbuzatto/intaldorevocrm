@@ -1048,6 +1048,37 @@ else
 fi
 
 ## ============================================================================================
+## TESTE DE SAUDE (HEALTHCHECK)
+## ============================================================================================
+
+echo -e ""
+echo -e "${amarelo}⏳ Aguardando a inicialização dos serviços Evo CRM...${reset}"
+echo -e "${branco}O primeiro boot executa migrações, sementes no banco de dados e downloads massivos.${reset}"
+echo -e "${branco}Isso pode levar até 5 minutos dependendo da sua internet. Testando: https://${FRONTEND_DOMAIN}${reset}"
+
+MAX_TRIES=60
+TRIES=0
+URL_TEST="https://${FRONTEND_DOMAIN}"
+
+while [ $TRIES -lt $MAX_TRIES ]; do
+  STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" -k "$URL_TEST")
+  if [ "$STATUS_CODE" -eq 200 ] || [ "$STATUS_CODE" -eq 301 ] || [ "$STATUS_CODE" -eq 404 ]; then
+    echo -e "\n${verde}🎉 SUCESSO ABSOLUTO! Seu sistema subiu perfeitamente e está online na web!${reset}"
+    break
+  fi
+  echo -n "."
+  sleep 5
+  TRIES=$((TRIES+1))
+done
+
+if [ $TRIES -eq $MAX_TRIES ]; then
+  echo -e "\n${vermelho}⚠️ ALERTA DE TIMEOUT: Os serviços demoraram mais de 5 minutos para responder.${reset}"
+  echo -e "${amarelo}Isto NÃO significa erro no script, muitas vezes é apenas lentidão da rede na sua VPS baixando imagens de 2GB.${reset}"
+  echo -e "${amarelo}Continue acompanhando no seu Portainer para ver se os serviços saem de 'starting' para o verde 'running'.${reset}"
+fi
+
+
+## ============================================================================================
 ## SALVAR CREDENCIAIS EM ARQUIVO
 ## ============================================================================================
 
