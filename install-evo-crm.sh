@@ -438,39 +438,44 @@ EOF
 cd evo-crm-stack
 
 echo ""
-echo -e "$amarelo===================================================================================================\e[0m"
-echo -e "$amarelo=                          $branco Autenticando no Portainer...                            $amarelo=\e[0m"
-echo -e "$amarelo===================================================================================================\e[0m"
+echo "==================================================================================================="
+echo "                           AUTENTICANDO NO PORTAINER"
+echo "==================================================================================================="
 
 echo "Tentando autenticar em: https://${PORTAINER_URL}/api/auth"
+echo "Usuario: ${PORTAINER_USER}"
 
-auth_response=$(curl -k -s -X POST "https://${PORTAINER_URL}/api/auth" \
-    -H "Content-Type: application/json" \
-    -d "{\"username\":\"${PORTAINER_USER}\",\"password\":\"${PORTAINER_PASS}\"}")
+max_attempts=3
+attempt=1
 
-echo "Resposta: ${auth_response}"
-
-token=$(echo "${auth_response}" | jq -r '.jwt' 2>/dev/null)
-
-if [ "$token" = "null" ] || [ -z "$token" ] || [ "$token" = "." ]; then
-    echo ""
-    echo "Erro na autenticacao. Tentando formato alternativo..."
-    
+while [ $attempt -le $max_attempts ]; do
     auth_response=$(curl -k -s -X POST "https://${PORTAINER_URL}/api/auth" \
         -H "Content-Type: application/json" \
         -d "{\"username\":\"${PORTAINER_USER}\",\"password\":\"${PORTAINER_PASS}\"}")
-    
-    token=$(echo "${auth_response}" | jq -r '.jwt' 2>/dev/null)
-    
-    if [ "$token" = "null" ] || [ -z "$token" ]; then
-        echo -e "$vermelho Erro ao autenticar no Portainer! Verifique as credenciais.$reset"
-        echo "Usuario usado: ${PORTAINER_USER}"
-        echo "Resposta completa: ${auth_response}"
-        exit 1
-    fi
-fi
 
-echo -e "$verde Autenticado com sucesso!$reset"
+    token=$(echo "${auth_response}" | jq -r '.jwt' 2>/dev/null)
+
+    if [ "$token" = "null" ] || [ -z "$token" ] || [ "$token" = "." ]; then
+        echo "Tentativa ${attempt}/${max_attempts} falhou!"
+        echo "Resposta: ${auth_response}"
+        
+        if [ $attempt -lt $max_attempts ]; then
+            echo "Tente novamente..."
+            read -p "Usuario do Portainer: " PORTAINER_USER
+            read -p "Senha do Portainer: " PORTAINER_PASS
+        fi
+        attempt=$((attempt + 1))
+    else
+        echo "Autenticado com sucesso!"
+        break
+    fi
+done
+
+if [ "$token" = "null" ] || [ -z "$token" ] || [ "$token" = "." ]; then
+    echo "ERRO: Nao foi possivel autenticar no Portainer!"
+    echo "Verifique suas credenciais e tente novamente."
+    exit 1
+fi
 
 echo ""
 echo "==================================================================================================="
