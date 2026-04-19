@@ -164,8 +164,7 @@ echo -e "${branco}── Credenciais do Portainer ──${reset}"
 echo ""
 read -p "Url do Portainer (ex: painel.seudominio.com.br): " PORTAINER_URL
 read -p "Usuario do Portainer: " PORTAINER_USER
-read -sp "Senha do Portainer: " PORTAINER_PASS
-echo ""
+read -p "Senha do Portainer: " PORTAINER_PASS
 
 ## ============================================================================================
 ## COLETA DE DADOS — REDE E INFRAESTRUTURA
@@ -198,8 +197,7 @@ case $DB_CHOICE in
         POSTGRES_HOST=${POSTGRES_HOST:-pgvector}
         read -p "Porta do PostgreSQL (ex: 5432): " POSTGRES_PORT
         POSTGRES_PORT=${POSTGRES_PORT:-5432}
-        read -sp "Senha do PostgreSQL: " POSTGRES_PASSWORD
-        echo ""
+        read -p "Senha do PostgreSQL: " POSTGRES_PASSWORD
         INSTALL_PGVECTOR=false
         ;;
     2)
@@ -207,8 +205,7 @@ case $DB_CHOICE in
         POSTGRES_HOST=${POSTGRES_HOST:-postgres}
         read -p "Porta do PostgreSQL (ex: 5432): " POSTGRES_PORT
         POSTGRES_PORT=${POSTGRES_PORT:-5432}
-        read -sp "Senha do PostgreSQL: " POSTGRES_PASSWORD
-        echo ""
+        read -p "Senha do PostgreSQL: " POSTGRES_PASSWORD
         INSTALL_PGVECTOR=false
         echo ""
         echo -e "${amarelo}[AVISO] O EVO CRM pode precisar da extensão pgvector para funcionalidades de IA.${reset}"
@@ -217,8 +214,7 @@ case $DB_CHOICE in
     3)
         POSTGRES_HOST="evocrm_pgvector"
         POSTGRES_PORT="5432"
-        read -sp "Defina uma senha para o novo PostgreSQL: " POSTGRES_PASSWORD
-        echo ""
+        read -p "Defina uma senha para o novo PostgreSQL: " POSTGRES_PASSWORD
         INSTALL_PGVECTOR=true
         ;;
     *)
@@ -259,8 +255,7 @@ if [[ "$SMTP_CHOICE" =~ ^[Ss]$ ]]; then
     SMTP_PORT=${SMTP_PORT:-587}
     read -p "Domínio SMTP (ex: gmail.com): " SMTP_DOMAIN
     read -p "Usuário SMTP: " SMTP_USERNAME
-    read -sp "Senha SMTP: " SMTP_PASSWORD
-    echo ""
+    read -p "Senha SMTP: " SMTP_PASSWORD
     read -p "Email remetente (ex: noreply@seudominio.com): " MAILER_SENDER_EMAIL
     SMTP_ENABLE_STARTTLS_AUTO="true"
     SMTP_AUTHENTICATION="plain"
@@ -370,8 +365,7 @@ while [ $attempt -le $max_attempts ]; do
         if [ $attempt -lt $max_attempts ]; then
             echo ""
             read -p "Usuario do Portainer: " PORTAINER_USER
-            read -sp "Senha do Portainer: " PORTAINER_PASS
-            echo ""
+            read -p "Senha do Portainer: " PORTAINER_PASS
         fi
         attempt=$((attempt + 1))
     else
