@@ -462,6 +462,25 @@ if [ "$INSTALL_PGVECTOR" = true ]; then
 version: "3.7"
 services:
 
+  evo_db_init:
+    image: postgres:16
+    networks:
+      - ${NETWORK_NAME}
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    command: >
+      sh -c "psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER} -d postgres -c \"CREATE DATABASE ${POSTGRES_DATABASE};\" || true"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - node.role == manager
+
+## --------------------------- ORION --------------------------- ##
+
 ## --------------------------- ORION --------------------------- ##
 
   evocrm_pgvector:
@@ -543,13 +562,6 @@ PGEOF
 fi
 
 
-## Criar banco evo_community no PostgreSQL externo se ele nao existir
-if [ "$INSTALL_PGVECTOR" = false ]; then
-    echo ""
-    echo -e "${branco}Verificando e garantindo que o banco de dados '${POSTGRES_DATABASE}' exista em '${POSTGRES_HOST}'...${reset}"
-    docker run --rm --network "${NETWORK_NAME}" -e PGPASSWORD="${POSTGRES_PASSWORD}" postgres:16 psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" -c "CREATE DATABASE ${POSTGRES_DATABASE};" >/dev/null 2>&1 || true
-    echo -e "  ${verde}[OK] Banco de dados verificado com sucesso!${reset}"
-fi
 
 ## ============================================================================================
 ## GERAÇÃO DO YAML DO EVO CRM
@@ -561,6 +573,25 @@ echo -e "${branco}Gerando stack do EVO CRM...${reset}"
 EVO_COMPOSE=$(cat <<EOFCOMPOSE
 version: "3.7"
 services:
+
+  evo_db_init:
+    image: postgres:16
+    networks:
+      - ${NETWORK_NAME}
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    command: >
+      sh -c "psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER} -d postgres -c \"CREATE DATABASE ${POSTGRES_DATABASE};\" || true"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - node.role == manager
+
+## --------------------------- ORION --------------------------- ##
 
 ## --------------------------- ORION --------------------------- ##
 
