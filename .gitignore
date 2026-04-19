@@ -1,0 +1,13 @@
+# Stack YAML files (contain sensitive credentials)
+*.yaml
+*.yml
+
+# SetupOrion binary
+SetupOrion
+
+# Credentials files
+credenciais-*.txt
+
+# OS files
+.DS_Store
+Thumbs.db
