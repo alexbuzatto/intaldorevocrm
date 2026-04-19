@@ -624,37 +624,37 @@ services:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Service (Rails) — porta 3001
     command: bash -c "bundle exec rails db:migrate 2>&1 || echo 'Migration errors...'; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3001 -b 0.0.0.0"
     networks:
-      - ${NETWORK_NAME}
+      - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV=production
-      - RAILS_MAX_THREADS=5
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_USERNAME=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_SSLMODE=disable
-      - REDIS_URL=${REDIS_URL}
-      - FRONTEND_URL=https://${FRONTEND_DOMAIN}
-      - BACKEND_URL=https://${API_DOMAIN}
-      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
-      - MAILER_SENDER_EMAIL=${MAILER_SENDER_EMAIL}
-      - SMTP_ADDRESS=${SMTP_ADDRESS}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_DOMAIN=${SMTP_DOMAIN}
-      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
-      - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
-      - SMTP_USERNAME=${SMTP_USERNAME}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - DOORKEEPER_JWT_SECRET_KEY=${DOORKEEPER_JWT_SECRET_KEY}
-      - DOORKEEPER_JWT_ALGORITHM=hs256
-      - DOORKEEPER_JWT_ISS=evo-auth-service
-      - MFA_ISSUER=EvoCRM
-      - SIDEKIQ_CONCURRENCY=10
-      - ACTIVE_STORAGE_SERVICE=local
+      - RAILS_ENV="production"
+      - RAILS_MAX_THREADS="5"
+      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
+      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
+      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
+      - POSTGRES_HOST="${POSTGRES_HOST}"
+      - POSTGRES_PORT="${POSTGRES_PORT}"
+      - POSTGRES_USERNAME="${POSTGRES_USER}"
+      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
+      - POSTGRES_SSLMODE="disable"
+      - REDIS_URL="${REDIS_URL}"
+      - FRONTEND_URL="https://${FRONTEND_DOMAIN}"
+      - BACKEND_URL="https://${API_DOMAIN}"
+      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - MAILER_SENDER_EMAIL="${MAILER_SENDER_EMAIL}"
+      - SMTP_ADDRESS="${SMTP_ADDRESS}"
+      - SMTP_PORT="${SMTP_PORT}"
+      - SMTP_DOMAIN="${SMTP_DOMAIN}"
+      - SMTP_AUTHENTICATION="${SMTP_AUTHENTICATION}"
+      - SMTP_ENABLE_STARTTLS_AUTO="${SMTP_ENABLE_STARTTLS_AUTO}"
+      - SMTP_USERNAME="${SMTP_USERNAME}"
+      - SMTP_PASSWORD="${SMTP_PASSWORD}"
+      - DOORKEEPER_JWT_SECRET_KEY="${DOORKEEPER_JWT_SECRET_KEY}"
+      - DOORKEEPER_JWT_ALGORITHM="hs256"
+      - DOORKEEPER_JWT_ISS="evo-auth-service"
+      - MFA_ISSUER="EvoCRM"
+      - SIDEKIQ_CONCURRENCY="10"
+      - ACTIVE_STORAGE_SERVICE="local"
     stop_grace_period: 300s
     deploy:
       mode: replicated
@@ -671,34 +671,36 @@ services:
 
   evo_auth_sidekiq:
     image: evoapicloud/evo-auth-service-community:latest ## Auth Sidekiq Worker
-    command: bash -c "bundle exec sidekiq"
+    command: bash -c "bundle exec sidekiq -C config/sidekiq.yml"
+    healthcheck:
+      disable: true
     networks:
-      - ${NETWORK_NAME}
+      - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV=production
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_USERNAME=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_SSLMODE=disable
-      - REDIS_URL=${REDIS_URL}
-      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
-      - SMTP_ADDRESS=${SMTP_ADDRESS}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_DOMAIN=${SMTP_DOMAIN}
-      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION}
-      - SMTP_ENABLE_STARTTLS_AUTO=${SMTP_ENABLE_STARTTLS_AUTO}
-      - SMTP_USERNAME=${SMTP_USERNAME}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - DOORKEEPER_JWT_SECRET_KEY=${DOORKEEPER_JWT_SECRET_KEY}
-      - DOORKEEPER_JWT_ALGORITHM=hs256
-      - DOORKEEPER_JWT_ISS=evo-auth-service
-      - MFA_ISSUER=EvoCRM
-      - SIDEKIQ_CONCURRENCY=10
+      - RAILS_ENV="production"
+      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
+      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
+      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
+      - POSTGRES_HOST="${POSTGRES_HOST}"
+      - POSTGRES_PORT="${POSTGRES_PORT}"
+      - POSTGRES_USERNAME="${POSTGRES_USER}"
+      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
+      - POSTGRES_SSLMODE="disable"
+      - REDIS_URL="${REDIS_URL}"
+      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - SMTP_ADDRESS="${SMTP_ADDRESS}"
+      - SMTP_PORT="${SMTP_PORT}"
+      - SMTP_DOMAIN="${SMTP_DOMAIN}"
+      - SMTP_AUTHENTICATION="${SMTP_AUTHENTICATION}"
+      - SMTP_ENABLE_STARTTLS_AUTO="${SMTP_ENABLE_STARTTLS_AUTO}"
+      - SMTP_USERNAME="${SMTP_USERNAME}"
+      - SMTP_PASSWORD="${SMTP_PASSWORD}"
+      - DOORKEEPER_JWT_SECRET_KEY="${DOORKEEPER_JWT_SECRET_KEY}"
+      - DOORKEEPER_JWT_ALGORITHM="hs256"
+      - DOORKEEPER_JWT_ISS="evo-auth-service"
+      - MFA_ISSUER="EvoCRM"
+      - SIDEKIQ_CONCURRENCY="10"
       - ACTIVE_STORAGE_SERVICE=local
     stop_grace_period: 300s
     deploy:
@@ -718,34 +720,34 @@ services:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Service (Rails) — porta 3000
     command: sh -c "until wget -qO- http://evo_auth:3001/health >/dev/null 2>&1; do echo 'Waiting for auth...'; sleep 5; done; bundle exec rails db:migrate 2>&1 || true; bundle exec rails db:seed 2>&1 || true; bundle exec rails s -p 3000 -b 0.0.0.0"
     networks:
-      - ${NETWORK_NAME}
+      - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV=production
-      - RAILS_SERVE_STATIC_FILES=true
-      - RAILS_LOG_TO_STDOUT=true
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_USERNAME=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_SSLMODE=disable
-      - REDIS_URL=${REDIS_URL}
-      - EVO_AUTH_SERVICE_URL=http://evo_auth:3001
-      - EVO_AI_CORE_SERVICE_URL=http://evo_core:5555
-      - BACKEND_URL=https://${API_DOMAIN}
-      - FRONTEND_URL=https://${FRONTEND_DOMAIN}
-      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
-      - DISABLE_TELEMETRY=true
-      - LOG_LEVEL=info
-      - ENABLE_ACCOUNT_SIGNUP=true
-      - ENABLE_PUSH_RELAY_SERVER=true
-      - ENABLE_INBOX_EVENTS=true
-      - BOT_RUNTIME_URL=http://evo_bot_runtime:8080
-      - BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
-      - BOT_RUNTIME_POSTBACK_BASE_URL=http://evo_crm:3000
+      - RAILS_ENV="production"
+      - RAILS_SERVE_STATIC_FILES="true"
+      - RAILS_LOG_TO_STDOUT="true"
+      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
+      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
+      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
+      - POSTGRES_HOST="${POSTGRES_HOST}"
+      - POSTGRES_PORT="${POSTGRES_PORT}"
+      - POSTGRES_USERNAME="${POSTGRES_USER}"
+      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
+      - POSTGRES_SSLMODE="disable"
+      - REDIS_URL="${REDIS_URL}"
+      - EVO_AUTH_SERVICE_URL="http://evo_auth:3001"
+      - EVO_AI_CORE_SERVICE_URL="http://evo_core:5555"
+      - BACKEND_URL="https://${API_DOMAIN}"
+      - FRONTEND_URL="https://${FRONTEND_DOMAIN}"
+      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - DISABLE_TELEMETRY="true"
+      - LOG_LEVEL="info"
+      - ENABLE_ACCOUNT_SIGNUP="true"
+      - ENABLE_PUSH_RELAY_SERVER="true"
+      - ENABLE_INBOX_EVENTS="true"
+      - BOT_RUNTIME_URL="http://evo_bot_runtime:8080"
+      - BOT_RUNTIME_SECRET="${BOT_RUNTIME_SECRET}"
+      - BOT_RUNTIME_POSTBACK_BASE_URL="http://evo_crm:3000"
     deploy:
       mode: replicated
       replicas: 1
@@ -761,27 +763,29 @@ services:
 
   evo_crm_sidekiq:
     image: evoapicloud/evo-ai-crm-community:latest ## CRM Sidekiq Worker
-    command: bash -c "bundle exec sidekiq"
+    command: bash -c "bundle exec sidekiq -C config/sidekiq.yml"
+    healthcheck:
+      disable: true
     networks:
-      - ${NETWORK_NAME}
+      - "${NETWORK_NAME}"
     environment:
-      - RAILS_ENV=production
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - EVOAI_CRM_API_TOKEN=${EVOAI_CRM_API_TOKEN}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_USERNAME=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_SSLMODE=disable
-      - REDIS_URL=${REDIS_URL}
-      - EVO_AUTH_SERVICE_URL=http://evo_auth:3001
-      - EVO_AI_CORE_SERVICE_URL=http://evo_core:5555
-      - CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}
-      - BOT_RUNTIME_URL=http://evo_bot_runtime:8080
-      - BOT_RUNTIME_SECRET=${BOT_RUNTIME_SECRET}
-      - BOT_RUNTIME_POSTBACK_BASE_URL=http://evo_crm:3000
+      - RAILS_ENV="production"
+      - SECRET_KEY_BASE="${SECRET_KEY_BASE}"
+      - JWT_SECRET_KEY="${JWT_SECRET_KEY}"
+      - EVOAI_CRM_API_TOKEN="${EVOAI_CRM_API_TOKEN}"
+      - POSTGRES_HOST="${POSTGRES_HOST}"
+      - POSTGRES_PORT="${POSTGRES_PORT}"
+      - POSTGRES_USERNAME="${POSTGRES_USER}"
+      - POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+      - POSTGRES_DATABASE="${POSTGRES_DATABASE}"
+      - POSTGRES_SSLMODE="disable"
+      - REDIS_URL="${REDIS_URL}"
+      - EVO_AUTH_SERVICE_URL="http://evo_auth:3001"
+      - EVO_AI_CORE_SERVICE_URL="http://evo_core:5555"
+      - CORS_ORIGINS="https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - BOT_RUNTIME_URL="http://evo_bot_runtime:8080"
+      - BOT_RUNTIME_SECRET="${BOT_RUNTIME_SECRET}"
+      - BOT_RUNTIME_POSTBACK_BASE_URL="http://evo_crm:3000"
     deploy:
       mode: replicated
       replicas: 1
@@ -933,19 +937,13 @@ services:
 
   evocrm_redis:
     image: redis:latest ## Redis dedicado do EVO CRM
-    command: [
-        "redis-server",
-        "--requirepass",
-        "${REDIS_PASSWORD}",
-        "--appendonly",
-        "yes",
-        "--port",
-        "6379"
-      ]
+    command: sh -c "redis-server --requirepass $REDIS_PASSWORD --appendonly yes --port 6379"
+    healthcheck:
+      disable: true
     volumes:
       - evocrm_redis:/data
     networks:
-      - ${NETWORK_NAME}
+      - "${NETWORK_NAME}"
     deploy:
       placement:
         constraints:
@@ -966,9 +964,9 @@ volumes:
     name: evocrm_processor_logs
 
 networks:
-  ${NETWORK_NAME}:
+  "${NETWORK_NAME}":
     external: true
-    name: ${NETWORK_NAME}
+    name: "${NETWORK_NAME}"
 EOFCOMPOSE
 )
 
