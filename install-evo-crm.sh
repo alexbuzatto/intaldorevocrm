@@ -599,6 +599,8 @@ services:
     image: evoapicloud/evo-crm-gateway:latest ## Gateway Nginx - API único
     networks:
       - ${NETWORK_NAME}
+    environment:
+      - "ALLOWED_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
     deploy:
       mode: replicated
       replicas: 1
@@ -647,6 +649,7 @@ services:
       - "FRONTEND_URL=https://${FRONTEND_DOMAIN}"
       - "BACKEND_URL=https://${API_DOMAIN}"
       - "CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - "ACTION_CABLE_ALLOWED_REQUEST_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
       - "MAILER_SENDER_EMAIL=${MAILER_SENDER_EMAIL}"
       - "SMTP_ADDRESS=${SMTP_ADDRESS}"
       - "SMTP_PORT=${SMTP_PORT}"
@@ -757,6 +760,7 @@ services:
       - "BACKEND_URL=https://${API_DOMAIN}"
       - "FRONTEND_URL=https://${FRONTEND_DOMAIN}"
       - "CORS_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
+      - "ACTION_CABLE_ALLOWED_REQUEST_ORIGINS=https://${FRONTEND_DOMAIN},https://${API_DOMAIN}"
       - "DISABLE_TELEMETRY=true"
       - "LOG_LEVEL=info"
       - "ENABLE_ACCOUNT_SIGNUP=true"
@@ -934,6 +938,8 @@ services:
       - "VITE_AUTH_API_URL=https://${API_DOMAIN}"
       - "VITE_EVOAI_API_URL=https://${API_DOMAIN}"
       - "VITE_AGENT_PROCESSOR_URL=https://${API_DOMAIN}"
+      - "VITE_WS_URL=wss://${API_DOMAIN}/cable"
+      - "VITE_CABLE_URL=wss://${API_DOMAIN}/cable"
     deploy:
       mode: replicated
       replicas: 1
